@@ -17,12 +17,6 @@ import Utils = require('./utils');
 
 export var waterline: typeof Waterline = new Waterline();
 
-function throw_if_err(err) {
-    if (err !== null) {
-        throw new Error(err);
-    }
-}
-
 export function init_models() {
     waterline.loadCollection(Waterline.Collection.extend(User.User));
 }
