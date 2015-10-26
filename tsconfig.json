@@ -1,0 +1,35 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "isolatedModules": false,
+        "jsx": "react",
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "declaration": false,
+        "noImplicitAny": false,
+        "removeComments": true,
+        "noLib": false,
+        "preserveConstEnums": true,
+        "suppressImplicitAnyIndexErrors": true
+    },
+    "filesGlob": [
+        "**/*.ts",
+        "**/*.tsx",
+        "!node_modules/**"
+    ],
+    "files": [
+        "cust_typings/Model.ts",
+        "cust_typings/sails-postgresql.d.ts",
+        "cust_typings/waterline.d.ts",
+        "db.ts",
+        "models/User.ts",
+        "typings/es6-promise/es6-promise.d.ts",
+        "typings/lodash/lodash.d.ts",
+        "typings/node/node.d.ts",
+        "typings/tsd.d.ts",
+        "utils.ts"
+    ],
+    "exclude": []
+}

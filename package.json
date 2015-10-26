@@ -1,0 +1,16 @@
+{
+  "name": "waterline_scaffold",
+  "version": "0.0.1",
+  "description": "",
+  "main": "db.js",
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "start": "node db.js"
+  },
+  "dependencies": {
+    "lodash": "^3.10.1",
+    "sails-postgresql": "^0.10.16",
+    "waterline": "^0.10.26"
+  }
+}
