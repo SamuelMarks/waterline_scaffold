@@ -1,258 +1,184 @@
-///<reference path="../typings/node/node.d.ts"/>
-///<reference path="../typings/es6-promise/es6-promise.d.ts"/>
+declare var waterline: waterline.waterline;
 
-declare var waterline: WaterlineMod.Wl;
-
-declare module WaterlineMod {
-    export interface Wl {
-        new (): Wl;
-        _collections: string[];
-        _connections: {};
-        loadCollection(collection: {}): Model;
-        initialize(options: {}, cb: (err: any, ontology: any) => void): Model;
-        teardown(cb: (err: any, res: any) => void): void;
-        bootstrap(cb: (err: any, res: any) => void): void;
+declare module waterline {
+    export interface waterline {
+        new (): waterline;
+        _collections: Collection[];
+        _connections: Connection[];
         Collection: Collection;
         Model: Model;
+        loadCollection(collection: Collection): Collection[];
+        initialize(options: ConfigOptions, cb: cb): void;
+        schema: Schema;
+        teardown(cb: cb): void;
+        bootstrap(cb: cb): void;
     }
 
-    interface Collection extends Core {
-        new (waterline: Wl, connections: {}, cb: cb): Collection;
-
-        connections: {};
-        waterline: Wl;
-        attributes: {};
-        extend(model: {}): Collection;
+    export interface Collection extends Core, Query {
+        new (waterline: waterline, connections: Connection[], cb: cb): Collection;
+        connections: Connection[];
+        waterline: waterline;
+        attributes: Attributes;
+        extend(protoProps: {}, staticProps?: {}): any;
     }
 
-    interface Core {
+    export interface Attributes {
+        migrate?: string;
+    }
+
+    export interface CollectionLoader {
+        new (collection: Collection, connections: Connection[], defaults: {}): CollectionLoader;
+        initialize(context: {}): Collection;
+        _validate(collection: Collection, connections: Connection[]): Collection;
+        _getConnections(collection: Collection, connections: Connection[]): {};
+    }
+
+    export interface Core {
+        new (options: {}): Core;
+        adapter: Adapter;
         _attributes: {};
+        connections: Connection[];
+        defaults: Attributes;
         _cast: Cast;
         _schema: Schema;
         _validator: Validator;
-        _callbacks: {};
-        _instanceMethods;
-        new (options: {}): Core;
-
+        _callbacks: {
+            afterCreate: any[],
+            beforeCreate: any[]
+        };
+        _instanceMethods: {};
         hasSchema: boolean;
         migrate: string;
-
-        adapter: {};
-        connections: {};
-        defaults: {};
+        _initialize(options: {}): void;
+        _model: Model;
+        _transformer: Transformer;
+        adapterDictionary: Dictionary;
+        _normalizeSchemaFlag(): boolean;
     }
 
-    interface Cast {
-        _types: {};
-        new (): Cast;
-        initialize(attrs: {}): Cast;
-        run(values: {}): {};
-        string(str: string): string;
-        integer(key: string, value: any): number;
-        float(value: number): number;
-        boolean(value: boolean): boolean;
-        date(value: typeof Date): typeof Date;
-        array(value: any): any[];
+    export interface Dictionary {
+        // TODO
     }
 
-    interface Schema {
-        new (self: any): Cast;
-        initialize(attrs: {}, hasSchema: boolean, reservedAttributes: {}): Schema;
-        context: {};
-        schema: {};
-        objectAttribute(attrName: string, value: {}): {};
-        cleanValues(values: {}): {};
+    export interface Transformer {
+        // TODO
     }
 
-    interface Validator {
-        new (adapter: string): Validator;
-        validations: {};
-        initialize(attrs: {}, types: {}, defaults: {}): {};
-        validate(values: {}, presentOnly: boolean, cb: cb): Error[];
+    export interface Validator {
+        // TODO
     }
 
-    interface Query {
-        adapter: AdapterBase;
-        sync(cb: cb): any;
+    export interface Cast {
+        // TODO
     }
 
-    interface AdapterBase extends Adapter {
-        /* anything go here? */
+    export interface Query extends validate, ddl, dql, aggregate, composite, findersBasic, findersHelpers, findersDynamicFinders, stream {
+        new (): Query;
+        adapter: Adapter;
+        buildDynamicFinders(): void;
+        sync(cb: cb): void;
+        extend(protoProps: {}, staticProps: {}): {};
     }
 
-    interface Adapter extends Dql, Ddl, compoundQueries, aggregateQueries, sync, stream {
-        new (options: {}): Adapter;
-        connections: {};
-        dictionary: {};
-        query: {};
-        collection: string;
-        identity: string;
+    export interface validate {
+        validate: (values: any[], presentOnly?: cb | boolean, cb?: cb) => void;
     }
 
-    interface Dql {
-        hasJoin(): boolean;
-        join(criteria: {}, cb: cb): void;
-        create(values: {}, cb: cb): {};
-        find(criteria: {}, cb: cb): {};
-        findOne(criteria: {}, cb: cb): {};
-        count(criteria: {}, cb: cb): number;
-        update(criteria: {}, values: {}, cb: cb): {};
-        destroy(criteria: {}, cb: cb): {};
+    export interface ddl {
+        describe(cb: cb): void;
+        alter(cb: cb): void;
+        drop(cb: cb): void;
     }
 
-    interface Ddl {
-        define(cb: cb): { describe(err, existingAttributes): any };
-        describe(cb: cb): any;
-        drop(relations: {}, cb: cb): any;
-        alter(cb: cb): any;
+    export interface dql {
+        create(values: any | any[], cb?: cb): any;
+        update(criteria: {}, values: {}, cb?: cb): any;
+        destroy(criteria: {}, cb?: cb): any;
+        count(criteria: {}, options: {}, cb?: cb): any;
+        join(collection, fk, pk, cb): void;
     }
 
-    interface compoundQueries {
-        findOrCreate(criteria: {}, values: {}, cb: cb): {};
-        findOne(criteria: {}, cb: cb): {};
+    export interface aggregate {
+        createEach(valuesList: any[], cb?: cb): any;
+        findOrCreateEach(criteria: {}, valuesList: any[], cb?: cb): any;
     }
 
-    interface aggregateQueries {
-        createEach(valuesList: any[], cb: cb): cbList;
-        findOrCreateEach(attributesToCheck: any[], valuesList: any[], cb: cb): cbList;
+    export interface composite {
+        findOrCreate(criteria: {}, values?: {}, cb?: cb): any;
     }
 
-    interface setupTeardown {
-        teardown(cb: cb): any;
+    export interface findersBasic {
+        findOne(criteria: {}, cb?: cb): any;
+        find(criteria?: {}, options?: {}, cb?: cb): any;
+        where(...arguments: any[]): findersBasic;
+        select(...arguments: any[]): findersBasic;
     }
 
-    interface sync {
-        migrateDrop(cb: cb): any;
-        migrateAlter(cb: cb): any;
-        migrateCreate(cb: cb): any;
-        migrateSafe(cb: cb): any;
+    export interface findersHelpers {
+        findOneLike(criteria: {}, options: {}, cb: cb): void;
+        findLike(criteria: {}, options: {}, cb: cb): void;
+        startsWith(criteria: {}, options: {}, cb: cb): void;
+        endsWith(criteria: {}, options: {}, cb: cb): void;
+        contains(criteria: {}, options: {}, cb: cb): void;
     }
 
-    interface stream {
-        stream(criteria: {}, stream: any): any;
+    export interface findersDynamicFinders {
+        buildDynamicFinders(): void;
+        generateDynamicFinder(attrName: string, method: string, dontCapitalize: boolean): any;
+        generateAssociationFinders(attrName: string): any;
     }
 
-    interface Model extends Adapter {
-        new (context: {}, mixins: {}): Model;
-        create(params: Object): WaterlinePromise<QueryResult>;
-        create(params: Array<Object>): WaterlinePromise<QueryResult>;
-        create(params: Object, cb: (err: Error, created: QueryResult) => void): void;
-        create(params: Array<Object>, cb: (err: Error, created: Array<QueryResult>) => void): void;
-        toObject(): Object;
-        save(options: {}, cb: cb): any; // Promise
-        destroy(cb: cb): any; // Promise
-        _defineAssociations(): void;
-        _normalizeAssociations(): void;
-        _cast(values: {}): void;
-        validate(cb: cb): any; // Promise
-        toJSON(): JSON;
+    export interface stream {
+        stream(criteria: {}, transformation?: {}): ModelStream;
     }
 
-    export interface WaterlinePromise<T> extends Promise<T> {
-        exec(cb: (err: Error, results: Array<QueryResult>) => void);
-        exec(cb: (err: Error, result: QueryResult) => void);
+    export interface ModelStream {
+        // TODO
     }
 
-    export interface QueryResult extends Record {
-        destroy(): Promise<Array<QueryResult>>;
-        toJSON(): Object;
-    }
-
-    export interface Record {
-        id: number;
-        createdAt: Date;
-        updatedAt: Date;
-    }
-
-    interface BaseModel {
-        _properties: {};
-        inspect: any;
-    }
-
-    interface cb {
-        (err: Error, res: any);
-    }
-
-    interface cbList {
-        (err: Error, res: any[]);
-    }
-
-
-
-
-
-    /*
-    interface SimpleCb {
-        err: any;
-        ontology: any;
+    export interface Connection {
+        postgres: any; // Fix this line
     }
 
     export interface Model {
-        attributes: Object;
-
-        create(params: Object): WaterlinePromise<QueryResult>;
-        create(params: Array<Object>): WaterlinePromise<QueryResult>;
-        create(params: Object, cb: (err: Error, created: QueryResult) => void): void;
-        create(params: Array<Object>, cb: (err: Error, created: Array<QueryResult>) => void): void;
-
-        find(): QueryBuilder;
-        find(params: Object): QueryBuilder;
-        find(params: Object): WaterlinePromise<Array<QueryResult>>;
-
-        findOne(criteria: Object): WaterlinePromise<QueryResult>;
-
-        count(criteria: Object): WaterlinePromise<number>;
-        count(criteria: Array<Object>): WaterlinePromise<number>;
-        count(criteria: string): WaterlinePromise<number>;
-        count(criteria: number): WaterlinePromise<number>;
-
-        count(criteria: Object, cb: (err: Error, found: number) => void);
-        count(criteria: Array<Object>, cb: (err: Error, found: number) => void);
-        count(criteria: string, cb: (err: Error, found: number) => void);
-        count(criteria: number, cb: (err: Error, found: number) => void);
-
-        destroy(criteria: Object): WaterlinePromise<Array<Record>>;
-        destroy(criteria: Array<Object>): WaterlinePromise<Array<Record>>;
-        destroy(criteria: string): WaterlinePromise<Array<Record>>;
-        destroy(criteria: number): WaterlinePromise<Array<Record>>;
-
-        destroy(criteria: Object, cb: (err: Error, deleted: Array<Record>) => void): void;
-        destroy(criteria: Array<Object>, cb: (err: Error, deleted: Array<Record>) => void): void;
-        destroy(criteria: string, cb: (err: Error, deleted: Array<Record>) => void): void;
-        destroy(criteria: number, cb: (err: Error, deleted: Array<Record>) => void): void;
-
-        update(criteria: Object, changes: Object): WaterlinePromise<Array<QueryResult>>;
-        update(criteria: Array<Object>, changes: Object): WaterlinePromise<Array<QueryResult>>;
-        update(criteria: string, changes: Object): WaterlinePromise<Array<QueryResult>>;
-        update(criteria: number, changes: Object): WaterlinePromise<Array<QueryResult>>;
-
-        update(criteria: Object, changes: Array<Object>): WaterlinePromise<Array<QueryResult>>;
-        update(criteria: Array<Object>, changes: Array<Object>): WaterlinePromise<Array<QueryResult>>;
-        update(criteria: string, changes: Array<Object>): WaterlinePromise<Array<QueryResult>>;
-        update(criteria: number, changes: Array<Object>): WaterlinePromise<Array<QueryResult>>;
-
-        update(criteria: Object, changes: Array<Object>, cb: (err: Error, updated: Array<QueryResult>) => void): void;
-        update(criteria: Array<Object>, changes: Array<Object>, cb: (err: Error, updated: Array<QueryResult>) => void): void;
-        update(criteria: string, changes: Array<Object>, cb: (err: Error, updated: Array<QueryResult>) => void): void;
-        update(criteria: number, changes: Array<Object>, cb: (err: Error, updated: Array<QueryResult>) => void): void;
-
-        query(sqlQuery: string, cb: (err: Error, results: Array<Record>) => void);
-        native(cb: (err: Error, collection: Model) => void);
-
-        stream(criteria: Object, writeEnd: Object): NodeJS.WritableStream;
-        stream(criteria: Array<Object>, writeEnd: Object): NodeJS.WritableStream;
-        stream(criteria: string, writeEnd: Object): NodeJS.WritableStream;
-        stream(criteria: number, writeEnd: Object): NodeJS.WritableStream;
-
-        stream(criteria: Object, writeEnd: Object): Error;
-        stream(criteria: Array<Object>, writeEnd: Object): Error;
-        stream(criteria: string, writeEnd: Object): Error;
-        stream(criteria: number, writeEnd: Object): Error;
+        (context: {}, mixins: {}): Model;
+        toObject(): Object;
+        save(options: {}, cb: cb): any;
+        destory(cb): any;
+        _defineAssociations(): void;
+        _normalizeAssociations(): void;
+        _cast(values: any[]): void;
+        validate(cb: cb): void | any;
+        toJSON(): JSON;
     }
 
-    export interface WaterlinePromise<T> extends Promise<T> {
-        exec(cb: (err: Error, results: Array<QueryResult>) => void);
-        exec(cb: (err: Error, result: QueryResult) => void);
+    export interface ConfigOptions {
+        adapters: Adapter;
+        connections: Connection;
+    }
+
+    export interface cb {
+        (error: Error, result: any): any;
+    }
+
+    export interface Adapter {
+        url?: string;
+        postgres?: any; // TODO: Fix this line
+        /*
+        connections: Connection[],
+        query: any,
+        collection: string,
+        identity: string,
+        dictionary: adapterDictionary
+        */
+    }
+
+    export interface adapterDictionary {
+        // TODO
+    }
+
+    export interface Schema {
+        // TODO, in waterline-schema.d.ts
     }
 
     export interface Record {
@@ -260,35 +186,6 @@ declare module WaterlineMod {
         createdAt: Date;
         updatedAt: Date;
     }
-    export interface QueryResult extends Record {
-        destroy(): Promise<Array<QueryResult>>;
-        toJSON(): Object;
-    }
-
-    export interface QueryBuilder extends Promise<any> {
-        exec(cb: (error: any, results: Array<QueryResult>) => void);
-
-        where(condition: Object): QueryBuilder;
-        limit(lim: number): QueryBuilder;
-        skip(num: number): QueryBuilder;
-        sort(criteria: string): QueryBuilder;
-        populate(association: string): QueryBuilder;
-        populate(association: string, filter: Object): QueryBuilder;
-    }
-
-    interface SingleResult {
-        (err: Error, model: any): void;
-    }
-
-    interface MultipleResult {
-        (err: Error, models: any[]): void;
-    }
-
-    interface Result<T> {
-        done(callback: T): void;
-    }
-    */
-
 }
 
 declare module "waterline" {
