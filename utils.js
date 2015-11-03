@@ -1,4 +1,3 @@
-/// <reference path="./typings/lodash/lodash.d.ts"/>
 var _ = require('lodash');
 function url_to_config(url) {
     url = url.substr(url.search('//') + 2);
@@ -19,4 +18,3 @@ function url_to_config(url) {
     }());
 }
 exports.url_to_config = url_to_config;
-//# sourceMappingURL=utils.js.map

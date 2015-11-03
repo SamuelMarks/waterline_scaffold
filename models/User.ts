@@ -16,3 +16,10 @@ export const User = {
         }
     }
 };
+
+interface Bar {
+    can: string;
+    haz: boolean;
+}
+
+export const bar: Bar = { can: 'foo', haz: true };

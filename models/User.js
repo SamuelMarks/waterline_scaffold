@@ -1,4 +1,3 @@
-/// <reference path="../cust_typings/waterline.d.ts"/>
 'use strict';
 exports.User = {
     identity: 'user_tbl',
@@ -14,4 +13,4 @@ exports.User = {
         }
     }
 };
-//# sourceMappingURL=User.js.map
+exports.bar = { can: 'foo', haz: true };

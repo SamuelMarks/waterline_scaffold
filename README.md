@@ -15,3 +15,47 @@ Simple baseline scaffold to get you started using Waterline with TypeScript.
 ## Compile+run app
 
     tsc --sourcemap --module commonjs db.ts && npm start
+
+## Generate TypeScript definitions from Model
+TUser.ts contains two variables `FFOOOOOOOOOOOOOOOOOOOO` and `BARRRRRR` containing:
+
+```typescript
+{
+    identity: 'user_tbl',
+    connection: 'postgres',
+    attributes: {
+        email: {
+            type: 'string',
+            required: true
+        },
+        password: {
+            type: 'string',
+            required: false
+        },
+        name: {
+            type: 'string'
+        }
+    }
+};
+```
+
+Example with "models/TUser.js" extending with `waterline.Record, waterline.Model`:
+
+    tsc --sourcemap --module commonjs codegen/model_to_def.ts
+    node codegen/model_to_def.js models/TUser.js 'extends waterline.Record, waterline.Model'
+
+Will create file "models/TUser.d.ts" containing:
+
+```typescript
+export interface FFOOOOOOOOOOOOOOOOOOOO extends waterline.Record, waterline.Model {
+    email: string;
+    password?: string;
+    name?: string;
+}
+
+export interface BARRRRRR extends waterline.Record, waterline.Model {
+    email: string;
+    password?: string;
+    name?: string;
+}
+```

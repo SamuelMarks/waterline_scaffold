@@ -10,6 +10,7 @@
     "start": "node db.js"
   },
   "dependencies": {
+    "esprima": "^2.7.0",
     "lodash": "^3.10.1",
     "sails-postgresql": "^0.10.16",
     "waterline": "^0.10.26"
