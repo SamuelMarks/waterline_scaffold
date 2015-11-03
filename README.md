@@ -17,7 +17,7 @@ Simple baseline scaffold to get you started using Waterline with TypeScript.
     tsc --sourcemap --module commonjs db.ts && npm start
 
 ## Generate TypeScript definitions from Model
-TUser.ts contains two variables `FFOOOOOOOOOOOOOOOOOOOO` and `BARRRRRR` containing:
+Example with "models/TUser.js", contains two variables `FFOOOOOOOOOOOOOOOOOOOO` and `BARRRRRR` containing:
 
 ```typescript
 {
@@ -39,7 +39,7 @@ TUser.ts contains two variables `FFOOOOOOOOOOOOOOOOOOOO` and `BARRRRRR` containi
 };
 ```
 
-Example with "models/TUser.js" extending with `waterline.Record, waterline.Model`:
+Generating the interfaces; extending with `waterline.Record, waterline.Model`:
 
     tsc --sourcemap --module commonjs codegen/model_to_def.ts
     node codegen/model_to_def.js models/TUser.js 'extends waterline.Record, waterline.Model'

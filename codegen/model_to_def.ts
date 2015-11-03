@@ -30,8 +30,18 @@ interface IProperty {
 }
 
 enum Property {
-    // See: https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md#data-types
-    string
+    // See: https://github.com/balderdashy/waterline-docs/blob/master/models/data-types-attributes.md
+    string,
+    text,
+    integer,
+    float,
+    date,
+    time,
+    datetime,
+    boolean,
+    binary,
+    array,
+    json
 }
 
 declare type type = Property;
@@ -49,7 +59,7 @@ export function path_to_estree(filepath, cb: (err: NodeJS.ErrnoException, res?: 
 }
 
 export function model_estree_to_interface(obj: ModelToDef, cb: (err: Error, res: Array<ModelToEstreeRes>) => void): void {
-    return cb(null, obj.content.body.map(elem => handle_from_elem_type(obj, elem)[0]));
+    return cb(null, obj.content.body.map(elem => handle_from_elem_type(obj, elem)[0]).filter(_ => Object.keys(_).length !== 0));
 }
 
 function handle_from_elem_type(obj, elem): ModelToEstreeRes[] {
@@ -65,7 +75,7 @@ function handle_from_elem_type(obj, elem): ModelToEstreeRes[] {
             break;
         default:
             console.warn(`Parsing not implemented for ${elem.type}.`)
-            return [<ModelToEstreeRes>{ filename: obj.filename, model_name: undefined, model_attr: Array<Array<ESTree.Property>>() }];
+            return [<ModelToEstreeRes>{}];
     }
 }
 
@@ -154,6 +164,7 @@ function named_type_to_interface_type(named_type: AttributeToType) {
     return Object.keys(named_type).map(key => `${key}: ${named_type[key]};`)
 }
 
+
 function interface_dsl_to_interface(result, parsed_path: path.ParsedPath, extends_str: string, cb: (err: Error, res?: any) => void): void {
     const filename: string = path.join(parsed_path.dir, path.sep, parsed_path.name + '.d.ts');
     console.log(`Writing to: "${filename}"`);
@@ -165,16 +176,30 @@ function interface_dsl_to_interface(result, parsed_path: path.ParsedPath, extend
     );
 }
 
+function print_usage() {
+    console.info('Usage:', process.argv[0], process.argv[1], '<js_filepath>', '<extends string>');
+    console.info('Example:', process.argv[0], process.argv[1], 'foo.js', 'extends IBar, ICan')
+    console.info('Example:', process.argv[0], process.argv[1], path.join('foo', path.sep, 'haz.js'))
+}
+
 if (require.main === module) {
-    fs.stat(process.argv[2], (err, _) => {
-        if (err) {
-            console.info('Usage:', process.argv[0], process.argv[1], '<js_filepath>', '<extends string>');
-            console.info('Example:', process.argv[0], process.argv[1], 'foo.js', 'extends IBar, ICan')
-            console.info('Example:', process.argv[0], process.argv[1], path.join('foo', path.sep, 'haz.js'))
-            console.error(err.message);
+    if (!process.argv[2]) {
+        print_usage();
+        process.exit(1);
+    }
+
+    try {
+        let stat: fs.Stats = fs.statSync(process.argv[2]);
+        if (!stat.isFile()) {
+            print_usage();
+            console.error(`Expected ${process.argv[2]} to be a file, but it's a directory.`);
             process.exit(2);
         }
-    });
+    } catch (e) {
+        print_usage();
+        console.error((<NodeJS.ErrnoException>e).message);
+        process.exit(2);
+    }
 
     path_to_estree(process.argv[2], (err, res) => {
         if (err) throw err;

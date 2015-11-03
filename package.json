@@ -1,6 +1,6 @@
 {
   "name": "waterline_scaffold",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Simple baseline scaffold to get you started using Waterline with TypeScript.",
   "main": "db.js",
   "author": "Samuel Marks <samuelmarks@gmail.com>",

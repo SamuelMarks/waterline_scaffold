@@ -32,3 +32,4 @@ var BARRRRRR = {
         }
     }
 };
+exports = BARRRRRR;

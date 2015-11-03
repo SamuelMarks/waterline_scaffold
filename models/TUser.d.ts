@@ -1,10 +1,10 @@
-export interface FFOOOOOOOOOOOOOOOOOOOO extends waterline.Record, waterline.Model {
+export interface FFOOOOOOOOOOOOOOOOOOOO {
     email: string;
     password?: string;
     name?: string;
 }
 
-export interface BARRRRRR extends waterline.Record, waterline.Model {
+export interface BARRRRRR {
     email: string;
     password?: string;
     name?: string;

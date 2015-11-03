@@ -33,3 +33,5 @@ const BARRRRRR = {
         }
     }
 };
+
+exports = BARRRRRR;
